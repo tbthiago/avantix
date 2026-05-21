@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ficha de Entrada — Avantix Lab</title>
+  <meta name="description" content="Envie sua ficha de entrada digital para o Avantix Lab. Dados do paciente, serviço solicitado e arquivos digitais.">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ─── NAVIGATION ──────────────────────────── -->
+<nav class="nav scrolled" id="nav">
+  <a href="index.html" class="nav__logo">
+    <svg class="nav__logo-mark" viewBox="0 0 36 36" fill="none">
+      <polygon points="18,4 24,18 20,18 15,26 11,26" fill="#A01848"/>
+      <polygon points="18,4 22,18 26,28 30,28" fill="#3A5A8C"/>
+      <polygon points="15,26 20,18 24,18 27,26" fill="#1E6B4A"/>
+    </svg>
+    <span class="nav__logo-text">AVANTIX</span>
+  </a>
+  <ul class="nav__links">
+    <li><a href="index.html">Início</a></li>
+    <li><a href="sobre.html">Sobre</a></li>
+    <li><a href="servicos.html">Serviços</a></li>
+    <li><a href="tecnologia.html">Tecnologia</a></li>
+    <li><a href="ficha.html" class="nav__cta">Ficha de Entrada</a></li>
+  </ul>
+  <div class="nav__hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- ─── PAGE HERO ─────────────────────────────── -->
+<div class="page-hero">
+  <div class="container--narrow">
+    <span class="subtitle" style="color:rgba(247,245,242,0.45)">Laboratório Avantix</span>
+    <h1 class="display-lg">Ficha de Entrada</h1>
+    <p class="lead">Preencha os dados do caso e envie os arquivos digitais. Nossa equipe entrará em contato para confirmar o pedido.</p>
+  </div>
+</div>
+
+<!-- ─── FORM SECTION ──────────────────────────── -->
+<div class="ficha-section">
+  <div class="container--narrow">
+
+    <div id="alert-error" class="alert alert--error">
+      Ocorreu um erro ao enviar o formulário. Verifique os campos e tente novamente.
+    </div>
+    <div id="alert-success" class="alert alert--success">
+      Ficha enviada com sucesso! Nossa equipe entrará em contato em breve.
+    </div>
+
+    <div class="ficha-card" id="ficha-form-card">
+      <!-- Header -->
+      <div class="ficha-header">
+        <span class="ficha-header__logo">AVANTIX LAB</span>
+        <span class="ficha-header__label">Ficha de Entrada · Versão Digital</span>
+      </div>
+
+      <form class="ficha-body" id="ficha-form" enctype="multipart/form-data">
+
+        <!-- ─ 1. Dados do Cliente ─────────────── -->
+        <p class="ficha-section-title">Dados do Cliente</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cliente">Cliente / Clínica *</label>
+            <input type="text" id="cliente" name="cliente" required placeholder="Nome do dentista ou clínica">
+          </div>
+          <div class="form-group">
+            <label for="tel">Telefone *</label>
+            <input type="tel" id="tel" name="tel" required placeholder="(XX) XXXXX-XXXX">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cidade">Cidade *</label>
+            <input type="text" id="cidade" name="cidade" required placeholder="Cidade">
+          </div>
+          <div class="form-group">
+            <label for="uf">UF *</label>
+            <select id="uf" name="uf" required>
+              <option value="">Selecione</option>
+              <option>AC</option><option>AL</option><option>AP</option><option>AM</option>
+              <option>BA</option><option>CE</option><option>DF</option><option>ES</option>
+              <option>GO</option><option>MA</option><option>MT</option><option>MS</option>
+              <option>MG</option><option>PA</option><option>PB</option><option>PR</option>
+              <option>PE</option><option>PI</option><option>RJ</option><option>RN</option>
+              <option>RS</option><option>RO</option><option>RR</option><option>SC</option>
+              <option>SP</option><option>SE</option><option>TO</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ─ 2. Dados do Paciente ───────────── -->
+        <p class="ficha-section-title">Dados do Paciente</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="paciente">Nome do Paciente *</label>
+            <input type="text" id="paciente" name="paciente" required placeholder="Nome completo">
+          </div>
+          <div class="form-group">
+            <label for="idade">Idade</label>
+            <input type="number" id="idade" name="idade" min="0" max="120" placeholder="Anos">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Sexo</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="sexo" value="F"> Feminino
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="sexo" value="M"> Masculino
+            </label>
+          </div>
+        </div>
+
+        <!-- ─ 3. Datas ───────────────────────── -->
+        <p class="ficha-section-title">Prazos</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="data_entrada">Data de Entrada</label>
+            <input type="date" id="data_entrada" name="data_entrada">
+          </div>
+          <div class="form-group">
+            <label for="horario_entrada">Horário de Entrada</label>
+            <input type="time" id="horario_entrada" name="horario_entrada">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="data_saida">Previsão de Saída</label>
+            <input type="date" id="data_saida" name="data_saida">
+          </div>
+          <div class="form-group">
+            <label for="horario_saida">Horário de Saída</label>
+            <input type="time" id="horario_saida" name="horario_saida">
+          </div>
+        </div>
+
+        <!-- ─ 4. Tipo de Entrega ─────────────── -->
+        <p class="ficha-section-title">Tipo de Entrega</p>
+
+        <div class="form-group">
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="tipo_entrega" value="prova"> Enviar Prova
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="tipo_entrega" value="pronto"> Enviar Pronto
+            </label>
+          </div>
+        </div>
+
+        <!-- ─ 5. Elementos Dentários ─────────── -->
+        <p class="ficha-section-title">Elementos Dentários</p>
+        <p style="font-size:0.82rem;color:var(--medium-gray);margin-bottom:1rem">Clique nos dentes envolvidos no caso</p>
+
+        <div class="teeth-grid">
+          <!-- Superior -->
+          <div style="margin-bottom:0.75rem">
+            <p style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--medium-gray);text-align:center;margin-bottom:0.5rem">Superior</p>
+            <div style="display:flex;justify-content:center;align-items:center;gap:4px">
+              <!-- Quadrante 2 (esquerdo superior) -->
+              <div style="display:flex;gap:4px">
+                <button type="button" class="tooth-btn" data-tooth="28">28</button>
+                <button type="button" class="tooth-btn" data-tooth="27">27</button>
+                <button type="button" class="tooth-btn" data-tooth="26">26</button>
+                <button type="button" class="tooth-btn" data-tooth="25">25</button>
+                <button type="button" class="tooth-btn" data-tooth="24">24</button>
+                <button type="button" class="tooth-btn" data-tooth="23">23</button>
+                <button type="button" class="tooth-btn" data-tooth="22">22</button>
+                <button type="button" class="tooth-btn" data-tooth="21">21</button>
+              </div>
+              <div class="teeth-separator" style="height:36px"></div>
+              <!-- Quadrante 1 (direito superior) -->
+              <div style="display:flex;gap:4px">
+                <button type="button" class="tooth-btn" data-tooth="11">11</button>
+                <button type="button" class="tooth-btn" data-tooth="12">12</button>
+                <button type="button" class="tooth-btn" data-tooth="13">13</button>
+                <button type="button" class="tooth-btn" data-tooth="14">14</button>
+                <button type="button" class="tooth-btn" data-tooth="15">15</button>
+                <button type="button" class="tooth-btn" data-tooth="16">16</button>
+                <button type="button" class="tooth-btn" data-tooth="17">17</button>
+                <button type="button" class="tooth-btn" data-tooth="18">18</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Inferior -->
+          <div>
+            <div style="display:flex;justify-content:center;align-items:center;gap:4px">
+              <!-- Quadrante 3 (esquerdo inferior) -->
+              <div style="display:flex;gap:4px">
+                <button type="button" class="tooth-btn" data-tooth="38">38</button>
+                <button type="button" class="tooth-btn" data-tooth="37">37</button>
+                <button type="button" class="tooth-btn" data-tooth="36">36</button>
+                <button type="button" class="tooth-btn" data-tooth="35">35</button>
+                <button type="button" class="tooth-btn" data-tooth="34">34</button>
+                <button type="button" class="tooth-btn" data-tooth="33">33</button>
+                <button type="button" class="tooth-btn" data-tooth="32">32</button>
+                <button type="button" class="tooth-btn" data-tooth="31">31</button>
+              </div>
+              <div class="teeth-separator" style="height:36px"></div>
+              <!-- Quadrante 4 (direito inferior) -->
+              <div style="display:flex;gap:4px">
+                <button type="button" class="tooth-btn" data-tooth="41">41</button>
+                <button type="button" class="tooth-btn" data-tooth="42">42</button>
+                <button type="button" class="tooth-btn" data-tooth="43">43</button>
+                <button type="button" class="tooth-btn" data-tooth="44">44</button>
+                <button type="button" class="tooth-btn" data-tooth="45">45</button>
+                <button type="button" class="tooth-btn" data-tooth="46">46</button>
+                <button type="button" class="tooth-btn" data-tooth="47">47</button>
+                <button type="button" class="tooth-btn" data-tooth="48">48</button>
+              </div>
+            </div>
+            <p style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--medium-gray);text-align:center;margin-top:0.5rem">Inferior</p>
+          </div>
+        </div>
+
+        <input type="hidden" id="dentes_selecionados" name="dentes_selecionados" value="">
+
+        <!-- ─ 6. Material desinfectado ───────── -->
+        <div class="form-group" style="margin-top:1.5rem">
+          <label>Material Enviado Desinfectado?</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="desinfectado" value="sim"> Sim
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="desinfectado" value="nao"> Não
+            </label>
+          </div>
+        </div>
+
+        <!-- ─ 7. Serviço Solicitado ──────────── -->
+        <p class="ficha-section-title">Serviço Solicitado</p>
+
+        <div class="form-group">
+          <label for="servico">Descrição do Serviço *</label>
+          <input type="text" id="servico" name="servico" required placeholder="Ex.: Coroa de zircônia monolítica — dente 26">
+        </div>
+
+        <div class="form-group">
+          <label for="obs">Observações / Instruções Adicionais</label>
+          <textarea id="obs" name="obs" rows="4" placeholder="Detalhes técnicos, referências de cor, instruções especiais..."></textarea>
+        </div>
+
+        <!-- ─ 8. Cor ──────────────────────────── -->
+        <p class="ficha-section-title">Referências Estéticas</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cor_gengiva">Cor da Gengiva</label>
+            <input type="text" id="cor_gengiva" name="cor_gengiva" placeholder="Ex.: A2, Rosa natural">
+          </div>
+          <div class="form-group">
+            <label for="cor_dente">Cor do Dente</label>
+            <input type="text" id="cor_dente" name="cor_dente" placeholder="Ex.: A3, B1 Vita">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cor_remanescente">Cor do Remanescente</label>
+          <input type="text" id="cor_remanescente" name="cor_remanescente" placeholder="Ex.: C3">
+        </div>
+
+        <!-- Caracterização da Oclusão -->
+        <div class="form-group">
+          <label>Caracterização da Oclusão</label>
+          <div class="radio-group">
+            <label class="radio-label"><input type="radio" name="oclusao" value="nenhuma"> Nenhuma</label>
+            <label class="radio-label"><input type="radio" name="oclusao" value="leve"> Leve</label>
+            <label class="radio-label"><input type="radio" name="oclusao" value="moderado"> Moderado</label>
+            <label class="radio-label"><input type="radio" name="oclusao" value="acentuada"> Acentuada</label>
+          </div>
+        </div>
+
+        <!-- Personalidade -->
+        <div class="form-group">
+          <label>Personalidade do Sorriso</label>
+          <div class="radio-group">
+            <label class="radio-label"><input type="radio" name="personalidade" value="forte"> Forte</label>
+            <label class="radio-label"><input type="radio" name="personalidade" value="delicado"> Delicado</label>
+            <label class="radio-label"><input type="radio" name="personalidade" value="dinamico"> Dinâmico</label>
+            <label class="radio-label"><input type="radio" name="personalidade" value="calmo"> Calmo</label>
+          </div>
+        </div>
+
+        <!-- ─ 9. Acompanha o formulário ──────── -->
+        <p class="ficha-section-title">Acompanha este Formulário</p>
+
+        <div class="form-group">
+          <div class="checkbox-group">
+            <label class="checkbox-label"><input type="checkbox" name="acompanha[]" value="modelo_solido"> Modelo Sólido</label>
+            <label class="checkbox-label"><input type="checkbox" name="acompanha[]" value="modelo_provisorios"> Modelo dos Provisórios</label>
+            <label class="checkbox-label"><input type="checkbox" name="acompanha[]" value="fotos"> Fotos</label>
+            <label class="checkbox-label"><input type="checkbox" name="acompanha[]" value="modelo_antagonista"> Modelo Antagonista</label>
+            <label class="checkbox-label"><input type="checkbox" name="acompanha[]" value="moldagem"> Moldagem</label>
+            <label class="checkbox-label"><input type="checkbox" name="acompanha[]" value="articulador"> Articulador</label>
+            <label class="checkbox-label"><input type="checkbox" name="acompanha[]" value="registro_mordida"> Registro de Mordida</label>
+            <label class="checkbox-label"><input type="checkbox" name="acompanha[]" value="moldeiras"> Moldeiras</label>
+            <label class="checkbox-label"><input type="checkbox" name="acompanha[]" value="modelo_troquelado"> Modelo Troquelado</label>
+            <label class="checkbox-label"><input type="checkbox" name="acompanha[]" value="componente_implante"> Componente Implante</label>
+          </div>
+          <div style="margin-top:0.75rem;display:flex;gap:0.5rem;align-items:center">
+            <label class="checkbox-label"><input type="checkbox" name="acompanha[]" value="outros"> Outros:</label>
+            <input type="text" name="acompanha_outros" placeholder="Especificar..." style="flex:1;padding:0.4rem 0.7rem;border:1px solid var(--border);border-radius:2px;font-size:0.85rem;outline:none">
+          </div>
+        </div>
+
+        <!-- ─ 10. Upload de Arquivos ─────────── -->
+        <p class="ficha-section-title">Arquivos Digitais</p>
+
+        <div
+          class="upload-zone"
+          id="upload-zone"
+          onclick="document.getElementById('file-input').click()"
+        >
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <strong>Arraste arquivos ou clique para selecionar</strong>
+          <p>Arquivos STL, OBJ, DICOM, fotos, radiografias · Máx. 100MB por arquivo</p>
+        </div>
+
+        <input
+          type="file"
+          id="file-input"
+          multiple
+          accept=".stl,.obj,.ply,.dcm,.dicom,.jpg,.jpeg,.png,.pdf,.zip,.rar"
+          style="display:none"
+        >
+
+        <div class="file-list" id="file-list"></div>
+
+      </form>
+
+      <!-- Submit bar (outside form for styling, but linked) -->
+      <div class="submit-bar">
+        <p>Campos com * são obrigatórios. Os arquivos serão armazenados com segurança.</p>
+        <button class="btn btn--primary" id="submit-btn" onclick="submitFicha()">
+          <span id="btn-label">Enviar Ficha</span>
+          <div class="spinner" id="spinner"></div>
+        </button>
+      </div>
+
+    </div><!-- end ficha-card -->
+
+    <!-- Success state -->
+    <div class="success-msg" id="success-msg">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h3 class="display-md">Ficha enviada!</h3>
+      <p class="lead">Recebemos seu pedido com sucesso. Nossa equipe técnica analisará o caso e entrará em contato em breve.</p>
+      <a href="index.html" class="btn btn--outline" style="margin-top:1rem">← Voltar ao Início</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── FOOTER ────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <span class="nav__logo-text" style="color:var(--warm-white)">AVANTIX</span>
+        <p>Laboratório de prótese dental de alta precisão. Unindo tecnologia, ciência e arte.</p>
+      </div>
+      <div class="footer__col">
+        <h5>Serviços</h5>
+        <ul>
+          <li><a href="servicos.html">Coroas & Pontes</a></li>
+          <li><a href="servicos.html">Implantes</a></li>
+          <li><a href="servicos.html">Facetas</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h5>Laboratório</h5>
+        <ul>
+          <li><a href="sobre.html">Sobre nós</a></li>
+          <li><a href="tecnologia.html">Tecnologia</a></li>
+          <li><a href="ficha.html">Ficha de Entrada</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h5>Contato</h5>
+        <ul>
+          <li><a href="mailto:contato@avantixlab.com.br">contato@avantixlab.com.br</a></li>
+          <li><a href="tel:+5598999999999">(98) 99999-9999</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2025 Avantix Lab. Todos os direitos reservados.</span>
+      <div class="footer__colors">
+        <div class="footer__color-dot" style="background:#A01848"></div>
+        <div class="footer__color-dot" style="background:#3A5A8C"></div>
+        <div class="footer__color-dot" style="background:#1E6B4A"></div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+// ─── Tooth selection ─────────────────────────────
+const selectedTeeth = new Set();
+
+document.querySelectorAll('.tooth-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const t = btn.dataset.tooth;
+    if (selectedTeeth.has(t)) {
+      selectedTeeth.delete(t);
+      btn.classList.remove('selected');
+    } else {
+      selectedTeeth.add(t);
+      btn.classList.add('selected');
+    }
+    document.getElementById('dentes_selecionados').value = [...selectedTeeth].join(',');
+  });
+});
+
+// ─── File Upload ─────────────────────────────────
+const uploadZone = document.getElementById('upload-zone');
+const fileInput = document.getElementById('file-input');
+const fileList = document.getElementById('file-list');
+let selectedFiles = [];
+
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  addFiles([...e.dataTransfer.files]);
+});
+
+fileInput.addEventListener('change', () => addFiles([...fileInput.files]));
+
+function addFiles(newFiles) {
+  newFiles.forEach(f => {
+    if (!selectedFiles.find(existing => existing.name === f.name)) {
+      selectedFiles.push(f);
+    }
+  });
+  renderFileList();
+}
+
+function removeFile(name) {
+  selectedFiles = selectedFiles.filter(f => f.name !== name);
+  renderFileList();
+}
+
+function renderFileList() {
+  fileList.innerHTML = selectedFiles.map(f => `
+    <div class="file-item">
+      <span>📎 ${f.name} <span style="color:var(--light-gray)">(${(f.size/1024/1024).toFixed(1)} MB)</span></span>
+      <button type="button" onclick="removeFile('${f.name}')" title="Remover">✕</button>
+    </div>
+  `).join('');
+}
+
+// ─── Form Submission ─────────────────────────────
+async function submitFicha() {
+  const form = document.getElementById('ficha-form');
+  const btn = document.getElementById('submit-btn');
+  const label = document.getElementById('btn-label');
+  const spinner = document.getElementById('spinner');
+  const errorAlert = document.getElementById('alert-error');
+  const successAlert = document.getElementById('alert-success');
+
+  // Validate required fields
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+
+  // Show loading state
+  btn.disabled = true;
+  label.style.display = 'none';
+  spinner.classList.add('visible');
+  errorAlert.classList.remove('visible');
+
+  try {
+    const formData = new FormData(form);
+
+    // Append files
+    selectedFiles.forEach(f => formData.append('files', f));
+
+    const resp = await fetch('/api/ficha', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await resp.json();
+
+    if (!resp.ok) throw new Error(data.error || 'Erro desconhecido');
+
+    // Success
+    document.getElementById('ficha-form-card').style.display = 'none';
+    document.getElementById('success-msg').classList.add('visible');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch (err) {
+    errorAlert.textContent = `Erro: ${err.message}. Tente novamente ou entre em contato por WhatsApp.`;
+    errorAlert.classList.add('visible');
+    btn.disabled = false;
+    label.style.display = 'inline';
+    spinner.classList.remove('visible');
+    window.scrollTo({ top: errorAlert.offsetTop - 100, behavior: 'smooth' });
+  }
+}
+</script>
+</body>
+</html>
