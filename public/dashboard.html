@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Avantix Lab</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<main class="app-shell">
+  <aside class="app-sidebar">
+    <a href="index.html" class="nav__logo">
+      <svg class="nav__logo-mark" viewBox="0 0 36 36" fill="none">
+        <polygon points="18,4 24,18 20,18 15,26 11,26" fill="#A01848"/>
+        <polygon points="18,4 22,18 26,28 30,28" fill="#3A5A8C"/>
+        <polygon points="15,26 20,18 24,18 27,26" fill="#1E6B4A"/>
+      </svg>
+      <span class="nav__logo-text">AVANTIX</span>
+    </a>
+    <nav class="app-menu">
+      <a class="active" href="dashboard.html">Dashboard</a>
+      <a href="ficha.html">Novo pedido</a>
+      <a href="portal.html" data-logout>Sair</a>
+    </nav>
+  </aside>
+
+  <section class="app-content">
+    <header class="app-header">
+      <div>
+        <span class="subtitle">Portal do Cliente</span>
+        <h1 class="display-md">Dashboard</h1>
+        <p id="client-name">Carregando pedidos...</p>
+      </div>
+      <a class="btn btn--primary" href="ficha.html">Novo Pedido</a>
+    </header>
+
+    <div class="metrics-grid" id="client-metrics"></div>
+
+    <div class="work-panel">
+      <div class="panel-heading">
+        <h2>Pedidos recentes</h2>
+        <button class="btn btn--ghost" type="button" id="refresh-dashboard">Atualizar</button>
+      </div>
+      <div class="table-wrap">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Paciente</th>
+              <th>Serviço</th>
+              <th>Prazo</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="orders-body"></tbody>
+        </table>
+      </div>
+      <div class="empty-state" id="orders-empty">Nenhum pedido encontrado para este cliente.</div>
+    </div>
+  </section>
+</main>
+<script src="js/portal.js"></script>
+<script>loadClientDashboard();</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+.wrangler/tmp/
+.wrangler/state/v3/cache/
+.wrangler/state/v3/r2/
+.wrangler/state/v3/d1/**/*.sqlite
+.wrangler/state/v3/d1/**/*.sqlite-shm
+.wrangler/state/v3/d1/**/*.sqlite-wal

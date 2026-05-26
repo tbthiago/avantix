@@ -11,6 +11,8 @@
  *  - R2  : R2 bucket    (binding name: BUCKET)
  */
 
+import { getSessionUser } from './_lib/auth.js';
+
 export async function onRequestPost(context) {
   const { request, env } = context;
 
@@ -22,13 +24,21 @@ export async function onRequestPost(context) {
 
   try {
     const formData = await request.formData();
+    const user = await getSessionUser(request, env);
+    if (!user) {
+      return new Response(
+        JSON.stringify({ error: 'Faça login para criar um novo pedido.' }),
+        { status: 401, headers }
+      );
+    }
 
     // ─── Extract scalar fields ────────────────────
     const fields = {
-      cliente:           formData.get('cliente')           || '',
-      tel:               formData.get('tel')               || '',
-      cidade:            formData.get('cidade')            || '',
-      uf:                formData.get('uf')                || '',
+      cliente_id:        user?.id || null,
+      cliente:           user?.clinica || formData.get('cliente') || '',
+      tel:               user?.telefone || formData.get('tel') || '',
+      cidade:            user?.cidade || formData.get('cidade') || '',
+      uf:                user?.uf || formData.get('uf') || '',
       paciente:          formData.get('paciente')          || '',
       idade:             formData.get('idade')             || null,
       sexo:              formData.get('sexo')              || '',
@@ -96,7 +106,7 @@ export async function onRequestPost(context) {
 
     const result = await env.DB.prepare(`
       INSERT INTO fichas (
-        cliente, tel, cidade, uf,
+        cliente_id, cliente, tel, cidade, uf,
         paciente, idade, sexo,
         data_entrada, horario_entrada, data_saida, horario_saida,
         tipo_entrega, dentes, desinfectado,
@@ -106,7 +116,7 @@ export async function onRequestPost(context) {
         acompanha, acompanha_outros,
         arquivos_json, criado_em
       ) VALUES (
-        ?, ?, ?, ?,
+        ?, ?, ?, ?, ?,
         ?, ?, ?,
         ?, ?, ?, ?,
         ?, ?, ?,
@@ -117,7 +127,7 @@ export async function onRequestPost(context) {
         ?, CURRENT_TIMESTAMP
       )
     `).bind(
-      fields.cliente, fields.tel, fields.cidade, fields.uf,
+      fields.cliente_id, fields.cliente, fields.tel, fields.cidade, fields.uf,
       fields.paciente, fields.idade, fields.sexo,
       fields.data_entrada, fields.horario_entrada, fields.data_saida, fields.horario_saida,
       fields.tipo_entrega, fields.dentes, fields.desinfectado,

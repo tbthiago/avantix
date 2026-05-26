@@ -9,14 +9,19 @@ avantix/
 │   ├── sobre.html           ← Sobre o laboratório
 │   ├── servicos.html        ← Serviços
 │   ├── tecnologia.html      ← Tecnologia
-│   ├── ficha.html           ← Ficha de entrada (formulário)
+│   ├── ficha.html           ← Novo pedido (formulário)
 │   ├── css/
 │   │   └── styles.css
 │   └── js/
 │       └── main.js
+│       └── portal.js           ← Login, dashboard do cliente e admin
 ├── functions/
 │   └── api/
 │       └── ficha.js         ← Cloudflare Pages Function (Worker)
+│       └── auth/*           ← Cadastro/login/logout
+│       └── pedidos.js       ← Pedidos do cliente
+│       └── admin/pedidos.js ← Gestão de pedidos do laboratório
+├── migrations/              ← SQL incremental para bancos existentes
 ├── schema.sql               ← Schema do banco D1
 └── wrangler.toml            ← Configuração Cloudflare
 ```
@@ -40,9 +45,33 @@ wrangler d1 create avantix-db
 
 # Copie o database_id gerado e cole no wrangler.toml
 
-# Criar as tabelas
-wrangler d1 execute avantix-db --file=schema.sql
+# Criar as tabelas no banco remoto da Cloudflare
+wrangler d1 execute avantix-db --remote --file=schema.sql
 ```
+
+Se aparecer `no such table: main.fichas`, o banco remoto ainda não recebeu o
+schema base. Rode:
+
+```bash
+wrangler d1 execute avantix-db --remote --file=schema.sql
+```
+
+Se o banco já tinha fichas antes do portal, rode a migration incremental em vez
+de recriar. Use `--remote` para aplicar no D1 da Cloudflare; sem `--remote`, o
+Wrangler usa o banco local em `.wrangler/state`.
+
+```bash
+wrangler d1 execute avantix-db --remote --file=migrations/001_portal_clientes.sql
+```
+
+Se aparecer `duplicate column name: cliente_id`, a coluna já foi criada nesse
+banco. Nesse caso, complete apenas as tabelas/índices restantes:
+
+```bash
+wrangler d1 execute avantix-db --remote --file=migrations/002_portal_clientes_tables.sql
+```
+
+Para testar no banco local, remova `--remote`.
 
 ---
 
@@ -105,7 +134,12 @@ adicione em Pages → Settings → Environment Variables:
 ```
 RESEND_API_KEY = re_xxxxxxxxxxxxxxxx
 NOTIFY_EMAIL   = contato@avantixlab.com.br
+ADMIN_EMAIL    = email-do-admin@avantixlab.com.br
 ```
+
+O usuário cadastrado com o email definido em `ADMIN_EMAIL` recebe papel de
+administrador automaticamente e acessa `admin.html`. Os demais usuários entram
+em `dashboard.html`.
 
 ---
 

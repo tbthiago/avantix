@@ -16,6 +16,9 @@ bucket_name = "avantix-fichas"
 # ─── Environment variables (optional) ─────────────────────────────────────────
 [vars]
 ENVIRONMENT = "production"
+# Email that becomes administrator when registered in the portal.
+# Also configure this in Cloudflare Pages production variables.
+ADMIN_EMAIL = ""
 
 # ─── Preview / Development overrides ──────────────────────────────────────────
 [env.preview]

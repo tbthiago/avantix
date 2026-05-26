@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal do Cliente — Avantix Lab</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<nav class="nav scrolled" id="nav">
+  <a href="index.html" class="nav__logo">
+    <svg class="nav__logo-mark" viewBox="0 0 36 36" fill="none">
+      <polygon points="18,4 24,18 20,18 15,26 11,26" fill="#A01848"/>
+      <polygon points="18,4 22,18 26,28 30,28" fill="#3A5A8C"/>
+      <polygon points="15,26 20,18 24,18 27,26" fill="#1E6B4A"/>
+    </svg>
+    <span class="nav__logo-text">AVANTIX</span>
+  </a>
+  <ul class="nav__links">
+    <li><a href="index.html">Início</a></li>
+    <li><a href="ficha.html">Novo pedido</a></li>
+    <li><a href="portal.html" class="nav__cta">Portal</a></li>
+  </ul>
+  <div class="nav__hamburger" id="hamburger"><span></span><span></span><span></span></div>
+</nav>
+
+<main class="portal-page">
+  <section class="portal-auth">
+    <div class="portal-auth__intro">
+      <span class="subtitle">Avantix Lab</span>
+      <h1 class="display-md">Portal do Cliente</h1>
+      <p class="lead">Acesse seus pedidos, acompanhe status e envie novos pedidos usando o mesmo cadastro.</p>
+    </div>
+
+    <div class="portal-card">
+      <div class="portal-tabs" role="tablist">
+        <button class="portal-tab active" data-tab="login" type="button">Entrar</button>
+        <button class="portal-tab" data-tab="register" type="button">Cadastrar</button>
+      </div>
+
+      <div id="portal-alert" class="alert alert--error"></div>
+
+      <form id="login-form" class="portal-form active">
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <input id="login-email" name="email" type="email" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="login-password">Senha</label>
+          <input id="login-password" name="password" type="password" required autocomplete="current-password">
+        </div>
+        <button class="btn btn--primary portal-submit" type="submit">Entrar</button>
+      </form>
+
+      <form id="register-form" class="portal-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nome">Nome</label>
+            <input id="nome" name="nome" required autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label for="clinica">Clínica</label>
+            <input id="clinica" name="clinica" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label for="telefone">Telefone</label>
+            <input id="telefone" name="telefone" type="tel" autocomplete="tel">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cidade">Cidade</label>
+            <input id="cidade" name="cidade">
+          </div>
+          <div class="form-group">
+            <label for="uf">UF</label>
+            <input id="uf" name="uf" maxlength="2">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password">Senha</label>
+          <input id="password" name="password" type="password" minlength="6" required autocomplete="new-password">
+        </div>
+        <button class="btn btn--primary portal-submit" type="submit">Criar Cadastro</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<script src="js/main.js"></script>
+<script src="js/portal.js"></script>
+</body>
+</html>
