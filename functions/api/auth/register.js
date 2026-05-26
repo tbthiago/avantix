@@ -13,6 +13,12 @@ export async function onRequestPost({ request, env }) {
   } catch (err) {
     const message = String(err.message || '');
     if (message.includes('UNIQUE')) return json({ error: 'Este email ja esta cadastrado.' }, { status: 409 });
-    return json({ error: 'Nao foi possivel criar o cadastro.' }, { status: 500 });
+    if (message.includes('no such table') || message.includes('no such column')) {
+      return json({ error: 'Banco D1 sem schema atualizado. Rode schema.sql no banco remoto.' }, { status: 500 });
+    }
+    if (message.includes('Cannot read') || message.includes('undefined')) {
+      return json({ error: 'Binding DB nao configurado no Cloudflare Pages.' }, { status: 500 });
+    }
+    return json({ error: `Nao foi possivel criar o cadastro: ${message || 'erro interno'}` }, { status: 500 });
   }
 }

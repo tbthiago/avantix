@@ -724,11 +724,21 @@ section { padding: 120px 0; }
 
 .radio-label:hover, .checkbox-label:hover { color: var(--charcoal); background: rgba(58,90,140,0.04); }
 .radio-label:has(input:checked),
-.checkbox-label:has(input:checked) {
+.checkbox-label:has(input:checked),
+.radio-label.is-selected,
+.checkbox-label.is-selected {
   color: var(--charcoal);
   background: rgba(160,24,72,0.08);
   border-color: rgba(160,24,72,0.26);
   font-weight: 600;
+}
+
+.radio-label.is-selected {
+  box-shadow: inset 3px 0 0 var(--crimson);
+}
+
+.checkbox-label.is-selected {
+  box-shadow: inset 0 0 0 1px rgba(160,24,72,0.18);
 }
 
 .upload-zone {
@@ -1090,6 +1100,28 @@ footer {
   margin-top: 0.15rem;
 }
 
+.file-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 160px;
+}
+
+.file-links a {
+  color: var(--blue);
+  text-decoration: none;
+  font-size: 0.84rem;
+  line-height: 1.3;
+}
+
+.file-links a:hover {
+  text-decoration: underline;
+}
+
+.file-links a span {
+  color: var(--medium-gray);
+}
+
 .status-badge {
   display: inline-flex;
   align-items: center;
@@ -1102,10 +1134,11 @@ footer {
   color: var(--text-secondary);
 }
 
-.status-pendente { background: rgba(160, 104, 24, 0.12); color: #8a5515; }
+.status-recebido { background: rgba(160, 104, 24, 0.12); color: #8a5515; }
+.status-pendente { background: rgba(42, 42, 42, 0.08); color: var(--text-secondary); }
+.status-triagem { background: rgba(111, 72, 150, 0.12); color: #684696; }
 .status-em_producao { background: rgba(58, 90, 140, 0.12); color: var(--blue); }
-.status-prova { background: rgba(111, 72, 150, 0.12); color: #684696; }
-.status-pronto { background: rgba(30, 107, 74, 0.12); color: var(--green); }
+.status-finalizado { background: rgba(30, 107, 74, 0.12); color: var(--green); }
 .status-entregue { background: rgba(42, 42, 42, 0.1); color: var(--charcoal); }
 
 .empty-state {

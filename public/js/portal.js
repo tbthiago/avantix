@@ -1,8 +1,9 @@
 const statusLabels = {
-  pendente: 'Aguardando triagem',
+  recebido: 'Recebido',
+  pendente: 'Pendente',
+  triagem: 'Triagem',
   em_producao: 'Em producao',
-  prova: 'Em prova',
-  pronto: 'Pronto',
+  finalizado: 'Finalizado',
   entregue: 'Entregue',
 };
 
@@ -49,8 +50,15 @@ function activatePortalTab(tabName) {
   document.querySelectorAll('.portal-tab').forEach((item) => {
     item.classList.toggle('active', item.dataset.tab === tabName);
   });
-  document.querySelectorAll('.portal-form').forEach((form) => form.classList.remove('active'));
-  document.getElementById(`${tabName}-form`)?.classList.add('active');
+  document.querySelectorAll('.portal-form').forEach((form) => {
+    form.classList.remove('active');
+    form.hidden = true;
+  });
+  const activeForm = document.getElementById(`${tabName}-form`);
+  if (activeForm) {
+    activeForm.classList.add('active');
+    activeForm.hidden = false;
+  }
 }
 
 function requireLoginRedirect() {
@@ -68,15 +76,38 @@ function formatDate(value) {
 }
 
 function statusBadge(status) {
-  return `<span class="status-badge status-${escapeHtml(status || 'pendente')}">${escapeHtml(statusLabels[status] || status || 'Pendente')}</span>`;
+  return `<span class="status-badge status-${escapeHtml(status || 'recebido')}">${escapeHtml(statusLabels[status] || status || 'Recebido')}</span>`;
 }
 
 function countByStatus(orders) {
-  const counts = { pendente: 0, em_producao: 0, prova: 0, pronto: 0, entregue: 0 };
+  const counts = { recebido: 0, pendente: 0, triagem: 0, em_producao: 0, finalizado: 0, entregue: 0 };
   orders.forEach((order) => {
     counts[order.status] = (counts[order.status] || 0) + 1;
   });
   return counts;
+}
+
+function formatFileSize(bytes) {
+  const size = Number(bytes || 0);
+  if (!size) return '';
+  if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`;
+  return `${(size / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function renderAdminFiles(order) {
+  const files = Array.isArray(order.arquivos) ? order.arquivos : [];
+  if (!files.length) return '<span>Nenhum arquivo</span>';
+
+  return `
+    <div class="file-links">
+      ${files.map((file) => `
+        <a href="/api/admin/arquivo?key=${encodeURIComponent(file.key)}" target="_blank" rel="noopener">
+          ${escapeHtml(file.name || 'Arquivo')}
+          <span>${escapeHtml(formatFileSize(file.size))}</span>
+        </a>
+      `).join('')}
+    </div>
+  `;
 }
 
 function logout(event) {
@@ -125,14 +156,15 @@ document.getElementById('login-form')?.addEventListener('submit', async (event) 
 
 document.getElementById('register-form')?.addEventListener('submit', async (event) => {
   event.preventDefault();
+  const form = event.currentTarget;
+  const payload = formDataToJson(form);
   try {
     await api('/api/auth/register', {
       method: 'POST',
-      body: JSON.stringify(formDataToJson(event.currentTarget)),
+      body: JSON.stringify(payload),
     });
-    const email = event.currentTarget.email.value;
-    event.currentTarget.reset();
-    document.getElementById('login-email').value = email;
+    form.reset();
+    document.getElementById('login-email').value = payload.email || '';
     activatePortalTab('login');
     showPortalSuccess('Cadastro criado. Entre com seu email e senha para continuar.');
   } catch (err) {
@@ -144,16 +176,20 @@ async function loadClientDashboard() {
   try {
     const user = await ensureUser();
     if (!user) return;
+    if (user.role === 'admin') {
+      window.location.href = 'admin.html';
+      return;
+    }
     document.getElementById('client-name').textContent = `${user.nome} · ${user.clinica}`;
 
     const data = await api('/api/pedidos');
     const orders = data.pedidos || [];
     const counts = countByStatus(orders);
     const metrics = [
-      ['Em andamento', counts.pendente + counts.em_producao + counts.prova],
-      ['Aguardando', counts.pendente],
-      ['Em producao', counts.em_producao],
-      ['Concluidos', counts.pronto + counts.entregue],
+      ['Recebidos', counts.recebido],
+      ['Pendentes', counts.pendente],
+      ['Em andamento', counts.triagem + counts.em_producao],
+      ['Finalizados', counts.finalizado + counts.entregue],
     ];
 
     document.getElementById('client-metrics').innerHTML = metrics.map(([label, count]) => `
@@ -202,6 +238,7 @@ async function loadAdminOrders() {
   const status = encodeURIComponent(document.getElementById('admin-status')?.value || '');
   const data = await api(`/api/admin/pedidos?q=${q}&status=${status}`);
   const orders = data.pedidos || [];
+  renderAdminMetrics(orders);
   const body = document.getElementById('admin-orders-body');
   body.innerHTML = orders.map((order) => `
     <tr>
@@ -212,6 +249,7 @@ async function loadAdminOrders() {
       <td>${escapeHtml(order.paciente)}</td>
       <td>${escapeHtml(order.servico)}</td>
       <td>${formatDate(order.data_saida)}</td>
+      <td>${renderAdminFiles(order)}</td>
       <td>
         <select class="status-select" data-order-id="${order.id}">
           ${Object.entries(statusLabels).map(([value, label]) => (
@@ -226,6 +264,30 @@ async function loadAdminOrders() {
   body.querySelectorAll('.status-select').forEach((select) => {
     select.addEventListener('change', () => updateOrderStatus(Number(select.dataset.orderId), select.value));
   });
+}
+
+function renderAdminMetrics(orders) {
+  const metrics = document.getElementById('admin-metrics');
+  if (!metrics) return;
+
+  const counts = countByStatus(orders);
+  const clients = new Set(orders.map((order) => order.cliente_email || order.cliente_clinica || order.cliente).filter(Boolean));
+  const active = counts.recebido + counts.pendente + counts.triagem + counts.em_producao;
+  const completed = counts.finalizado + counts.entregue;
+
+  const items = [
+    ['Pedidos totais', orders.length],
+    ['Clientes', clients.size],
+    ['Em andamento', active],
+    ['Concluidos', completed],
+  ];
+
+  metrics.innerHTML = items.map(([label, count]) => `
+    <div class="metric-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${count}</strong>
+    </div>
+  `).join('');
 }
 
 async function loadAdminPanel() {

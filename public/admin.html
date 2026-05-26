@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Painel Administrativo — Avantix Lab</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=20260526-files1">
 </head>
 <body>
 <main class="app-shell">
@@ -18,8 +18,7 @@
       <span class="nav__logo-text">AVANTIX</span>
     </a>
     <nav class="app-menu">
-      <a class="active" href="admin.html">Pedidos</a>
-      <a href="dashboard.html">Dashboard cliente</a>
+      <a class="active" href="admin.html">Dashboard</a>
       <a href="portal.html" data-logout>Sair</a>
     </nav>
   </aside>
@@ -28,10 +27,12 @@
     <header class="app-header">
       <div>
         <span class="subtitle">Laboratório</span>
-        <h1 class="display-md">Painel Administrativo</h1>
-        <p>Gerencie pedidos recebidos e atualize o progresso de cada trabalho.</p>
+        <h1 class="display-md">Dashboard administrativo</h1>
+        <p>Todos os pedidos de todos os clientes em um único painel.</p>
       </div>
     </header>
+
+    <div class="metrics-grid" id="admin-metrics"></div>
 
     <div class="admin-toolbar">
       <input id="admin-search" type="search" placeholder="Buscar cliente, paciente, serviço ou email">
@@ -42,6 +43,9 @@
     </div>
 
     <div class="work-panel">
+      <div class="panel-heading">
+        <h2>Pedidos de todos os clientes</h2>
+      </div>
       <div class="table-wrap">
         <table class="orders-table">
           <thead>
@@ -50,6 +54,7 @@
               <th>Paciente</th>
               <th>Serviço</th>
               <th>Prazo</th>
+              <th>Arquivos</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -60,7 +65,7 @@
     </div>
   </section>
 </main>
-<script src="js/portal.js"></script>
+<script src="js/portal.js?v=20260526-files1"></script>
 <script>loadAdminPanel();</script>
 </body>
 </html>

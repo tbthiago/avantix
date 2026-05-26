@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Novo pedido — Avantix Lab</title>
   <meta name="description" content="Envie um novo pedido digital para o Avantix Lab. Dados do paciente, serviço solicitado e arquivos digitais.">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=20260526-files1">
 </head>
 <body>
 
@@ -413,7 +413,7 @@
   </div>
 </footer>
 
-<script src="js/main.js"></script>
+<script src="js/main.js?v=20260526-session1"></script>
 <script>
 // ─── Tooth selection ─────────────────────────────
 const selectedTeeth = new Set();
@@ -438,6 +438,23 @@ const fileInput = document.getElementById('file-input');
 const fileList = document.getElementById('file-list');
 let selectedFiles = [];
 
+// ─── Selection feedback for radios and checkboxes ─
+function refreshChoiceState(input) {
+  if (input.type === 'radio') {
+    document.querySelectorAll(`input[type="radio"][name="${CSS.escape(input.name)}"]`).forEach(item => {
+      item.closest('.radio-label')?.classList.toggle('is-selected', item.checked);
+    });
+    return;
+  }
+
+  input.closest('.checkbox-label')?.classList.toggle('is-selected', input.checked);
+}
+
+document.querySelectorAll('.radio-label input[type="radio"], .checkbox-label input[type="checkbox"]').forEach(input => {
+  refreshChoiceState(input);
+  input.addEventListener('change', () => refreshChoiceState(input));
+});
+
 // ─── Require login and prefill client data ───────
 (async function requireLoggedClient() {
   try {
@@ -445,6 +462,10 @@ let selectedFiles = [];
     const data = await resp.json();
     if (!data.user) {
       window.location.href = 'portal.html?login=required';
+      return;
+    }
+    if (data.user.role === 'admin') {
+      window.location.href = 'admin.html';
       return;
     }
 

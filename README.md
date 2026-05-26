@@ -73,6 +73,20 @@ wrangler d1 execute avantix-db --remote --file=migrations/002_portal_clientes_ta
 
 Para testar no banco local, remova `--remote`.
 
+Para atualizar um banco antigo para o fluxo atual de status
+(`recebido`, `pendente`, `triagem`, `em_producao`, `finalizado`, `entregue`), rode:
+
+```bash
+wrangler d1 execute avantix-db --remote --file=migrations/003_status_fluxo_pedidos.sql
+```
+
+Se a migration `003` já foi aplicada antes da inclusão do status `pendente`,
+rode também:
+
+```bash
+wrangler d1 execute avantix-db --remote --file=migrations/004_status_pendente.sql
+```
+
 ---
 
 ## 3. Criar o Bucket R2
@@ -128,18 +142,41 @@ Adicione:
 
 ## 6. Variáveis de Ambiente (opcional)
 
+O email interno padrão do administrador é:
+
+```text
+avantix@avantix.com.br
+```
+
+Ao cadastrar uma conta com esse email no portal, o usuário recebe acesso ao
+painel do laboratório em `admin.html`. A senha será a senha escolhida nesse
+cadastro.
+
+Se quiser trocar esse email sem alterar o código, configure `ADMIN_EMAIL` como
+secret do Pages:
+
+```bash
+wrangler pages secret put ADMIN_EMAIL --project-name=avantix
+```
+
+Quando o Wrangler pedir o valor, informe o email que deve acessar o painel do
+laboratório. Não adicione `ADMIN_EMAIL` também no `wrangler.toml`, pois o
+deploy falha se o mesmo binding existir como variável e secret.
+
 Se quiser adicionar notificações por email (ex: via Resend ou SendGrid),
 adicione em Pages → Settings → Environment Variables:
 
 ```
 RESEND_API_KEY = re_xxxxxxxxxxxxxxxx
 NOTIFY_EMAIL   = contato@avantixlab.com.br
-ADMIN_EMAIL    = email-do-admin@avantixlab.com.br
 ```
 
 O usuário cadastrado com o email definido em `ADMIN_EMAIL` recebe papel de
 administrador automaticamente e acessa `admin.html`. Os demais usuários entram
 em `dashboard.html`.
+
+No painel `admin.html`, o administrador visualiza todos os pedidos e pode baixar
+os arquivos enviados em cada pedido pela rota protegida `/api/admin/arquivo`.
 
 ---
 

@@ -1,11 +1,13 @@
 const SESSION_COOKIE = 'avantix_session';
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 14;
+const PASSWORD_HASH_ITERATIONS = 100000;
 
 export const STATUS_OPTIONS = {
-  pendente: 'Aguardando triagem',
+  recebido: 'Recebido',
+  pendente: 'Pendente',
+  triagem: 'Triagem',
   em_producao: 'Em producao',
-  prova: 'Em prova',
-  pronto: 'Pronto',
+  finalizado: 'Finalizado',
   entregue: 'Entregue',
 };
 
@@ -42,27 +44,32 @@ function randomToken(bytes = 32) {
   return bytesToHex(values);
 }
 
-async function hashPassword(password, salt = randomToken(16)) {
+async function hashPassword(password, salt = randomToken(16), iterations = PASSWORD_HASH_ITERATIONS) {
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey('raw', encoder.encode(password), 'PBKDF2', false, ['deriveBits']);
   const bits = await crypto.subtle.deriveBits(
-    { name: 'PBKDF2', salt: encoder.encode(salt), iterations: 120000, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt: encoder.encode(salt), iterations, hash: 'SHA-256' },
     key,
     256
   );
-  return `${salt}:${bytesToHex(bits)}`;
+  return `${iterations}:${salt}:${bytesToHex(bits)}`;
 }
 
 export async function verifyPassword(password, storedHash) {
   if (!password || !storedHash || !storedHash.includes(':')) return false;
-  const [salt] = storedHash.split(':');
-  return await hashPassword(password, salt) === storedHash;
+  const parts = storedHash.split(':');
+  if (parts.length === 2) {
+    const [salt] = parts;
+    return await hashPassword(password, salt, PASSWORD_HASH_ITERATIONS) === `${PASSWORD_HASH_ITERATIONS}:${storedHash}`;
+  }
+  const [iterations, salt] = parts;
+  return await hashPassword(password, salt, Number(iterations)) === storedHash;
 }
 
 export async function createUser(env, { nome, clinica, email, telefone, cidade, uf, password }) {
   const normalizedEmail = String(email || '').trim().toLowerCase();
   const passwordHash = await hashPassword(password);
-  const adminEmail = String(env.ADMIN_EMAIL || '').trim().toLowerCase();
+  const adminEmail = String(env.ADMIN_EMAIL || 'avantix@avantix.com.br').trim().toLowerCase();
   const role = adminEmail && normalizedEmail === adminEmail ? 'admin' : 'cliente';
 
   const result = await env.DB.prepare(`

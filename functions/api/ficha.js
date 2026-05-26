@@ -31,6 +31,12 @@ export async function onRequestPost(context) {
         { status: 401, headers }
       );
     }
+    if (user.role === 'admin') {
+      return new Response(
+        JSON.stringify({ error: 'Administradores não criam pedidos.' }),
+        { status: 403, headers }
+      );
+    }
 
     // ─── Extract scalar fields ────────────────────
     const fields = {

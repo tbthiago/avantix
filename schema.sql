@@ -50,8 +50,8 @@ CREATE TABLE IF NOT EXISTS fichas (
   arquivos_json       TEXT,          -- JSON array: [{key, name, size}, ...]
 
   -- Metadata
-  status              TEXT DEFAULT 'pendente'
-                        CHECK(status IN ('pendente', 'em_producao', 'prova', 'pronto', 'entregue')),
+  status              TEXT DEFAULT 'recebido'
+                        CHECK(status IN ('recebido', 'pendente', 'triagem', 'em_producao', 'finalizado', 'entregue')),
   criado_em           TEXT DEFAULT (datetime('now')),
   atualizado_em       TEXT
 );

@@ -31,7 +31,6 @@ export async function onRequestGet({ request, env }) {
     LEFT JOIN clientes c ON c.id = f.cliente_id
     ${where}
     ORDER BY datetime(f.criado_em) DESC
-    LIMIT 200
   `).bind(...bind).all();
 
   return json({ pedidos: (rows.results || []).map(normalizeFicha), statuses: STATUS_OPTIONS });

@@ -45,3 +45,46 @@ function setActiveNav() {
   });
 }
 setActiveNav();
+
+// ─── Session-aware navigation ───────────────────
+async function updateSessionNav() {
+  const links = document.querySelector('.nav__links');
+  if (!links) return;
+
+  try {
+    const resp = await fetch('/api/auth/me', { credentials: 'same-origin' });
+    const data = await resp.json();
+    if (!data.user) return;
+
+    const portalLink = links.querySelector('a[href="portal.html"], a[href="/portal"]');
+    if (portalLink) {
+      portalLink.textContent = data.user.role === 'admin' ? 'Admin' : 'Dashboard';
+      portalLink.href = data.user.role === 'admin' ? 'admin.html' : 'dashboard.html';
+    }
+
+    if (data.user.role === 'admin') {
+      links.querySelectorAll('a[href="ficha.html"], a[href="/ficha"]').forEach((link) => {
+        link.closest('li')?.remove();
+      });
+    }
+
+    if (!links.querySelector('[data-nav-logout]')) {
+      const item = document.createElement('li');
+      const logout = document.createElement('a');
+      logout.href = 'portal.html';
+      logout.textContent = 'Sair';
+      logout.dataset.navLogout = 'true';
+      logout.addEventListener('click', async (event) => {
+        event.preventDefault();
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {});
+        window.location.href = 'portal.html';
+      });
+      item.appendChild(logout);
+      links.appendChild(item);
+    }
+  } catch {
+    // Public pages remain usable if the session endpoint is unavailable.
+  }
+}
+
+updateSessionNav();
