@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel Administrativo — Avantix Lab</title>
+  <title>Detalhes do pedido — Avantix Lab</title>
   <link rel="stylesheet" href="css/styles.css?v=20260530-admin-detail1">
 </head>
 <body>
@@ -18,7 +18,7 @@
       <span class="nav__logo-text">AVANTIX</span>
     </a>
     <nav class="app-menu">
-      <a class="active" href="admin.html">Dashboard</a>
+      <a href="admin.html">Dashboard</a>
       <a href="portal.html" data-logout>Sair</a>
     </nav>
   </aside>
@@ -27,45 +27,27 @@
     <header class="app-header">
       <div>
         <span class="subtitle">Laboratório</span>
-        <h1 class="display-md">Dashboard administrativo</h1>
-        <p>Todos os pedidos de todos os clientes em um único painel.</p>
+        <h1 class="display-md" id="admin-order-title">Detalhes do pedido</h1>
+        <p id="admin-order-subtitle">Informações preenchidas no formulário.</p>
       </div>
+      <a class="btn btn--ghost" href="admin.html">Voltar</a>
     </header>
-
-    <div class="metrics-grid" id="admin-metrics"></div>
-
-    <div class="admin-toolbar">
-      <input id="admin-search" type="search" placeholder="Buscar cliente, paciente, serviço ou email">
-      <select id="admin-status">
-        <option value="">Todos os status</option>
-      </select>
-      <button class="btn btn--ghost" id="admin-refresh" type="button">Atualizar</button>
-    </div>
 
     <div class="work-panel">
       <div class="panel-heading">
-        <h2>Pedidos de todos os clientes</h2>
+        <h2>Ficha respondida</h2>
+        <div id="admin-order-status"></div>
       </div>
       <div class="table-wrap">
-        <table class="orders-table">
-          <thead>
-            <tr>
-              <th>Cliente</th>
-              <th>Paciente</th>
-              <th>Serviço</th>
-              <th>Prazo</th>
-              <th>Status</th>
-              <th>Detalhes</th>
-            </tr>
-          </thead>
-          <tbody id="admin-orders-body"></tbody>
+        <table class="orders-table details-table">
+          <tbody id="admin-order-details-body"></tbody>
         </table>
       </div>
-      <div class="empty-state" id="admin-empty">Nenhum pedido encontrado.</div>
+      <div class="empty-state" id="admin-order-empty">Carregando pedido.</div>
     </div>
   </section>
 </main>
 <script src="js/portal.js?v=20260530-admin-detail1"></script>
-<script>loadAdminPanel();</script>
+<script>loadAdminOrderDetail();</script>
 </body>
 </html>

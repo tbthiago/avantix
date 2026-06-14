@@ -78,6 +78,17 @@ CREATE TABLE IF NOT EXISTS sessoes (
   FOREIGN KEY(cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS ficha_arquivos (
+  id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+  ficha_id            INTEGER NOT NULL,
+  r2_key              TEXT NOT NULL,
+  nome                TEXT NOT NULL,
+  tamanho             INTEGER DEFAULT 0,
+  content_type        TEXT,
+  criado_em           TEXT DEFAULT (datetime('now')),
+  FOREIGN KEY(ficha_id) REFERENCES fichas(id) ON DELETE CASCADE
+);
+
 -- Index for common queries
 CREATE INDEX IF NOT EXISTS idx_fichas_cliente   ON fichas(cliente);
 CREATE INDEX IF NOT EXISTS idx_fichas_cliente_id ON fichas(cliente_id);
@@ -86,3 +97,5 @@ CREATE INDEX IF NOT EXISTS idx_fichas_criado_em ON fichas(criado_em DESC);
 CREATE INDEX IF NOT EXISTS idx_fichas_status    ON fichas(status);
 CREATE INDEX IF NOT EXISTS idx_clientes_email   ON clientes(email);
 CREATE INDEX IF NOT EXISTS idx_sessoes_expira   ON sessoes(expira_em);
+CREATE INDEX IF NOT EXISTS idx_ficha_arquivos_ficha_id ON ficha_arquivos(ficha_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ficha_arquivos_r2_key ON ficha_arquivos(r2_key);

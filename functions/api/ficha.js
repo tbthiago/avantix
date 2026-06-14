@@ -12,6 +12,7 @@
  */
 
 import { getSessionUser } from './_lib/auth.js';
+import { newOrderEmail, sendEmail } from './_lib/email.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -78,13 +79,14 @@ export async function onRequestPost(context) {
     const uploadedFiles = [];
     const files = formData.getAll('files');
 
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
       if (!(file instanceof File) || file.size === 0) continue;
 
       // Sanitize filename
       const safeFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
       const timestamp    = Date.now();
-      const r2Key        = `fichas/${timestamp}_${safeFileName}`;
+      const uniqueSuffix = `${timestamp}_${index}_${crypto.randomUUID()}`;
+      const r2Key        = `fichas/${uniqueSuffix}_${safeFileName}`;
 
       // Size limit: 100MB
       if (file.size > 100 * 1024 * 1024) {
@@ -104,7 +106,12 @@ export async function onRequestPost(context) {
         },
       });
 
-      uploadedFiles.push({ key: r2Key, name: file.name, size: file.size });
+      uploadedFiles.push({
+        key: r2Key,
+        name: file.name,
+        size: file.size,
+        type: file.type || 'application/octet-stream',
+      });
     }
 
     // ─── Insert into D1 ───────────────────────────
@@ -144,10 +151,33 @@ export async function onRequestPost(context) {
       arquivos_json
     ).run();
 
+    const fichaId = result.meta?.last_row_id;
+    if (fichaId && uploadedFiles.length) {
+      await env.DB.batch(uploadedFiles.map((file) => env.DB.prepare(`
+        INSERT INTO ficha_arquivos (ficha_id, r2_key, nome, tamanho, content_type, criado_em)
+        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `).bind(fichaId, file.key, file.name, file.size, file.type)));
+    }
+
+    if (fichaId) {
+      const notification = newOrderEmail({
+        id: fichaId,
+        cliente: fields.cliente,
+        paciente: fields.paciente,
+        servico: fields.servico,
+      });
+      context.waitUntil(
+        sendEmail(env, {
+          to: env.NOTIFY_EMAIL || 'contato@avantixlabor.com.br',
+          ...notification,
+        }).catch((error) => console.error('New order email error:', error))
+      );
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
-        id:      result.meta?.last_row_id,
+        id:      fichaId,
         files:   uploadedFiles.length,
         message: 'Ficha recebida com sucesso.',
       }),

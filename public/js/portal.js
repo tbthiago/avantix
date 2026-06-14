@@ -100,6 +100,51 @@ function renderAdminFiles(order) {
 
   return `
     <div class="file-links">
+      <strong>${files.length} arquivo${files.length === 1 ? '' : 's'}</strong>
+      ${files.map((file) => `
+        <a href="/api/admin/arquivo?key=${encodeURIComponent(file.key)}" target="_blank" rel="noopener">
+          ${escapeHtml(file.name || 'Arquivo')}
+          <span>${escapeHtml(formatFileSize(file.size))}</span>
+        </a>
+      `).join('')}
+    </div>
+  `;
+}
+
+function adminOrderDetailUrl(order) {
+  return `admin-pedido.html?id=${encodeURIComponent(order.id)}`;
+}
+
+function renderAdminDetailLink(order) {
+  return `<a class="table-action-link" href="${adminOrderDetailUrl(order)}">Ver ficha</a>`;
+}
+
+function formatValue(value) {
+  if (Array.isArray(value)) return value.length ? value.join(', ') : '-';
+  if (value === null || value === undefined || value === '') return '-';
+  return String(value);
+}
+
+function formatDateTime(dateValue, timeValue) {
+  const date = formatDate(dateValue);
+  if (date === '-' && !timeValue) return '-';
+  return `${date}${timeValue ? ` ${timeValue}` : ''}`;
+}
+
+function renderDetailRow(label, value) {
+  return `
+    <tr>
+      <th>${escapeHtml(label)}</th>
+      <td>${value}</td>
+    </tr>
+  `;
+}
+
+function renderAdminFilesForDetails(order) {
+  const files = Array.isArray(order.arquivos) ? order.arquivos : [];
+  if (!files.length) return escapeHtml('Nenhum arquivo');
+  return `
+    <div class="file-links file-links--inline">
       ${files.map((file) => `
         <a href="/api/admin/arquivo?key=${encodeURIComponent(file.key)}" target="_blank" rel="noopener">
           ${escapeHtml(file.name || 'Arquivo')}
@@ -249,7 +294,6 @@ async function loadAdminOrders() {
       <td>${escapeHtml(order.paciente)}</td>
       <td>${escapeHtml(order.servico)}</td>
       <td>${formatDate(order.data_saida)}</td>
-      <td>${renderAdminFiles(order)}</td>
       <td>
         <select class="status-select" data-order-id="${order.id}">
           ${Object.entries(statusLabels).map(([value, label]) => (
@@ -257,6 +301,7 @@ async function loadAdminOrders() {
           )).join('')}
         </select>
       </td>
+      <td>${renderAdminDetailLink(order)}</td>
     </tr>
   `).join('');
   document.getElementById('admin-empty').style.display = orders.length ? 'none' : 'block';
@@ -300,6 +345,65 @@ async function loadAdminPanel() {
     const empty = document.getElementById('admin-empty');
     empty.textContent = err.message;
     empty.style.display = 'block';
+  }
+}
+
+async function loadAdminOrderDetail() {
+  const empty = document.getElementById('admin-order-empty');
+  const body = document.getElementById('admin-order-details-body');
+  try {
+    const user = await ensureUser('admin');
+    if (!user) return;
+
+    const id = Number(new URLSearchParams(window.location.search).get('id') || 0);
+    if (!id) throw new Error('Pedido nao informado.');
+
+    const data = await api(`/api/admin/pedidos?id=${encodeURIComponent(id)}`);
+    const order = (data.pedidos || [])[0];
+    if (!order) throw new Error('Pedido nao encontrado.');
+
+    document.getElementById('admin-order-title').textContent = `Pedido #${order.id}`;
+    document.getElementById('admin-order-subtitle').textContent = `${order.cliente_clinica || order.cliente || 'Cliente'} · ${order.paciente || 'Paciente'}`;
+    document.getElementById('admin-order-status').innerHTML = statusBadge(order.status);
+
+    const rows = [
+      ['Cliente', order.cliente],
+      ['Clinica', order.cliente_clinica],
+      ['Email do cliente', order.cliente_email],
+      ['Telefone', order.tel],
+      ['Cidade/UF', [order.cidade, order.uf].filter(Boolean).join(' / ')],
+      ['Paciente', order.paciente],
+      ['Idade', order.idade],
+      ['Sexo', order.sexo],
+      ['Entrada', formatDateTime(order.data_entrada, order.horario_entrada)],
+      ['Saida', formatDateTime(order.data_saida, order.horario_saida)],
+      ['Tipo de entrega', order.tipo_entrega],
+      ['Dentes', order.dentes],
+      ['Desinfectado', order.desinfectado],
+      ['Servico', order.servico],
+      ['Observacoes', order.obs],
+      ['Cor da gengiva', order.cor_gengiva],
+      ['Cor do dente', order.cor_dente],
+      ['Cor do remanescente', order.cor_remanescente],
+      ['Oclusao', order.oclusao],
+      ['Personalidade', order.personalidade],
+      ['Acompanha', order.acompanha],
+      ['Acompanha outros', order.acompanha_outros],
+      ['Arquivos', renderAdminFilesForDetails(order)],
+      ['Criado em', order.criado_em],
+      ['Atualizado em', order.atualizado_em],
+    ];
+
+    body.innerHTML = rows.map(([label, value]) => (
+      renderDetailRow(label, label === 'Arquivos' ? value : escapeHtml(formatValue(value)))
+    )).join('');
+    empty.style.display = 'none';
+  } catch (err) {
+    if (body) body.innerHTML = '';
+    if (empty) {
+      empty.textContent = err.message;
+      empty.style.display = 'block';
+    }
   }
 }
 

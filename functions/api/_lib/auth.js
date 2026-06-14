@@ -126,13 +126,21 @@ export async function requireAdmin(request, env) {
 }
 
 export function normalizeFicha(row) {
-  const arquivos = (() => {
-    try { return JSON.parse(row.arquivos_json || '[]'); } catch { return []; }
-  })();
+  const parseFiles = (value) => {
+    try {
+      const parsed = JSON.parse(value || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const tableFiles = parseFiles(row.arquivos_table_json);
+  const jsonFiles = parseFiles(row.arquivos_json);
 
   return {
     ...row,
     status_label: STATUS_OPTIONS[row.status] || row.status || 'Pendente',
-    arquivos,
+    arquivos: tableFiles.length ? tableFiles : jsonFiles,
   };
 }

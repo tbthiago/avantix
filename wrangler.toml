@@ -16,6 +16,12 @@ bucket_name = "avantix-fichas"
 # ─── Environment variables (optional) ─────────────────────────────────────────
 [vars]
 ENVIRONMENT = "production"
+SMTP_HOST = "smtp.umbler.com"
+SMTP_PORT = "587"
+SMTP_USER = "contato@avantixlabor.com.br"
+SMTP_FROM = "contato@avantixlabor.com.br"
+SMTP_FROM_NAME = "Avantix Laboratorio"
+NOTIFY_EMAIL = "contato@avantixlabor.com.br"
 
 # ─── Preview / Development overrides ──────────────────────────────────────────
 [env.preview]

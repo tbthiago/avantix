@@ -17,10 +17,10 @@ if (hamburger && navLinks) {
     navLinks.style.position = 'absolute';
     navLinks.style.top = '72px';
     navLinks.style.left = '0'; navLinks.style.right = '0';
-    navLinks.style.background = 'rgba(247,245,242,0.98)';
+    navLinks.style.background = 'rgba(32,36,35,0.98)';
     navLinks.style.padding = '1.5rem 2rem';
     navLinks.style.gap = '1.25rem';
-    navLinks.style.borderBottom = '1px solid rgba(42,42,42,0.1)';
+    navLinks.style.borderBottom = '1px solid rgba(247,245,242,0.1)';
   });
 }
 
@@ -39,7 +39,7 @@ function setActiveNav() {
   document.querySelectorAll('.nav__links a').forEach(a => {
     const href = a.getAttribute('href');
     if (href === path || (path === 'index.html' && href === '/') || (path === '' && href === '/')) {
-      a.style.color = 'var(--charcoal)';
+      a.style.color = 'var(--warm-white)';
       a.style.fontWeight = '500';
     }
   });

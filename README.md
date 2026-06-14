@@ -163,14 +163,6 @@ Quando o Wrangler pedir o valor, informe o email que deve acessar o painel do
 laboratório. Não adicione `ADMIN_EMAIL` também no `wrangler.toml`, pois o
 deploy falha se o mesmo binding existir como variável e secret.
 
-Se quiser adicionar notificações por email (ex: via Resend ou SendGrid),
-adicione em Pages → Settings → Environment Variables:
-
-```
-RESEND_API_KEY = re_xxxxxxxxxxxxxxxx
-NOTIFY_EMAIL   = contato@avantixlab.com.br
-```
-
 O usuário cadastrado com o email definido em `ADMIN_EMAIL` recebe papel de
 administrador automaticamente e acessa `admin.html`. Os demais usuários entram
 em `dashboard.html`.
@@ -180,7 +172,43 @@ os arquivos enviados em cada pedido pela rota protegida `/api/admin/arquivo`.
 
 ---
 
-## 7. Consultar Fichas no D1
+## 7. Emails automáticos pela Umbler
+
+O projeto envia pela caixa `contato@avantixlabor.com.br` usando:
+
+```text
+Servidor SMTP: smtp.umbler.com
+Porta: 587
+Segurança: STARTTLS
+Usuário: contato@avantixlabor.com.br
+```
+
+A senha nunca deve ser gravada no código ou no `wrangler.toml`. Configure-a
+como secret do Pages:
+
+```bash
+wrangler pages secret put SMTP_PASSWORD --project-name=avantix
+```
+
+Digite a senha da caixa somente quando o Wrangler solicitar. Depois faça novo
+deploy:
+
+```bash
+wrangler pages deploy public --project-name=avantix
+```
+
+O sistema envia automaticamente:
+
+- aviso para `contato@avantixlabor.com.br` quando chega um novo pedido;
+- aviso para o email cadastrado pelo cliente quando o admin muda o status.
+
+As variáveis não sensíveis do SMTP ficam em `wrangler.toml`. Para usar outro
+remetente ou destinatário interno, altere `SMTP_USER`, `SMTP_FROM` e
+`NOTIFY_EMAIL`.
+
+---
+
+## 8. Consultar Fichas no D1
 
 ```bash
 # Listar fichas recentes
@@ -194,7 +222,7 @@ wrangler d1 execute avantix-db --command \
 
 ---
 
-## 8. Personalizar
+## 9. Personalizar
 
 | O que mudar                  | Onde                          |
 |------------------------------|-------------------------------|

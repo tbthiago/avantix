@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Novo pedido — Avantix Lab</title>
   <meta name="description" content="Envie um novo pedido digital para o Avantix Lab. Dados do paciente, serviço solicitado e arquivos digitais.">
-  <link rel="stylesheet" href="css/styles.css?v=20260526-files1">
+  <link rel="stylesheet" href="css/styles.css?v=20260529-darksite1">
 </head>
-<body>
+<body class="ficha-page">
 
 <!-- ─── NAVIGATION ──────────────────────────── -->
 <nav class="nav scrolled" id="nav">
@@ -166,11 +166,11 @@
 
         <div class="teeth-grid">
           <!-- Superior -->
-          <div style="margin-bottom:0.75rem">
-            <p style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--medium-gray);text-align:center;margin-bottom:0.5rem">Superior</p>
-            <div style="display:flex;justify-content:center;align-items:center;gap:4px">
+          <div class="teeth-arch">
+            <p class="teeth-label">Superior</p>
+            <div class="teeth-arch-row">
               <!-- Quadrante 2 (esquerdo superior) -->
-              <div style="display:flex;gap:4px">
+              <div class="teeth-quadrant">
                 <button type="button" class="tooth-btn" data-tooth="28">28</button>
                 <button type="button" class="tooth-btn" data-tooth="27">27</button>
                 <button type="button" class="tooth-btn" data-tooth="26">26</button>
@@ -180,9 +180,9 @@
                 <button type="button" class="tooth-btn" data-tooth="22">22</button>
                 <button type="button" class="tooth-btn" data-tooth="21">21</button>
               </div>
-              <div class="teeth-separator" style="height:36px"></div>
+              <div class="teeth-separator"></div>
               <!-- Quadrante 1 (direito superior) -->
-              <div style="display:flex;gap:4px">
+              <div class="teeth-quadrant">
                 <button type="button" class="tooth-btn" data-tooth="11">11</button>
                 <button type="button" class="tooth-btn" data-tooth="12">12</button>
                 <button type="button" class="tooth-btn" data-tooth="13">13</button>
@@ -196,10 +196,10 @@
           </div>
 
           <!-- Inferior -->
-          <div>
-            <div style="display:flex;justify-content:center;align-items:center;gap:4px">
+          <div class="teeth-arch">
+            <div class="teeth-arch-row">
               <!-- Quadrante 3 (esquerdo inferior) -->
-              <div style="display:flex;gap:4px">
+              <div class="teeth-quadrant">
                 <button type="button" class="tooth-btn" data-tooth="38">38</button>
                 <button type="button" class="tooth-btn" data-tooth="37">37</button>
                 <button type="button" class="tooth-btn" data-tooth="36">36</button>
@@ -209,9 +209,9 @@
                 <button type="button" class="tooth-btn" data-tooth="32">32</button>
                 <button type="button" class="tooth-btn" data-tooth="31">31</button>
               </div>
-              <div class="teeth-separator" style="height:36px"></div>
+              <div class="teeth-separator"></div>
               <!-- Quadrante 4 (direito inferior) -->
-              <div style="display:flex;gap:4px">
+              <div class="teeth-quadrant">
                 <button type="button" class="tooth-btn" data-tooth="41">41</button>
                 <button type="button" class="tooth-btn" data-tooth="42">42</button>
                 <button type="button" class="tooth-btn" data-tooth="43">43</button>
@@ -222,7 +222,7 @@
                 <button type="button" class="tooth-btn" data-tooth="48">48</button>
               </div>
             </div>
-            <p style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--medium-gray);text-align:center;margin-top:0.5rem">Inferior</p>
+            <p class="teeth-label teeth-label--bottom">Inferior</p>
           </div>
         </div>
 
@@ -413,7 +413,7 @@
   </div>
 </footer>
 
-<script src="js/main.js?v=20260526-session1"></script>
+<script src="js/main.js?v=20260529-darksite1"></script>
 <script>
 // ─── Tooth selection ─────────────────────────────
 const selectedTeeth = new Set();
