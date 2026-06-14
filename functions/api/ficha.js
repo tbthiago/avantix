@@ -153,10 +153,15 @@ export async function onRequestPost(context) {
 
     const fichaId = result.meta?.last_row_id;
     if (fichaId && uploadedFiles.length) {
-      await env.DB.batch(uploadedFiles.map((file) => env.DB.prepare(`
-        INSERT INTO ficha_arquivos (ficha_id, r2_key, nome, tamanho, content_type, criado_em)
-        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-      `).bind(fichaId, file.key, file.name, file.size, file.type)));
+      try {
+        await env.DB.batch(uploadedFiles.map((file) => env.DB.prepare(`
+          INSERT INTO ficha_arquivos (ficha_id, r2_key, nome, tamanho, content_type, criado_em)
+          VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `).bind(fichaId, file.key, file.name, file.size, file.type)));
+      } catch (error) {
+        if (!String(error?.message || '').includes('ficha_arquivos')) throw error;
+        console.warn('ficha_arquivos table is not available; using arquivos_json compatibility data.');
+      }
     }
 
     if (fichaId) {
@@ -170,7 +175,11 @@ export async function onRequestPost(context) {
         sendEmail(env, {
           to: env.NOTIFY_EMAIL || 'contato@avantixlabor.com.br',
           ...notification,
-        }).catch((error) => console.error('New order email error:', error))
+        }).catch((error) => console.error({
+          event: 'new_order_email_failed',
+          order_id: fichaId,
+          error: String(error?.message || error),
+        }))
       );
     }
 

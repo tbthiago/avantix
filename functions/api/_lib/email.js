@@ -2,6 +2,22 @@ import { connect } from 'cloudflare:sockets';
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
+const SMTP_TIMEOUT_MS = 12000;
+
+async function withTimeout(promise, operation) {
+  let timeoutId;
+  const timeout = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(`Timeout SMTP apos ${SMTP_TIMEOUT_MS / 1000}s: ${operation}`));
+    }, SMTP_TIMEOUT_MS);
+  });
+
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
 
 function toBase64(value) {
   const bytes = encoder.encode(String(value));
@@ -41,10 +57,10 @@ function createChannel(socket) {
 
   return {
     async send(command) {
-      await writer.write(encoder.encode(`${command}\r\n`));
+      await withTimeout(writer.write(encoder.encode(`${command}\r\n`)), 'enviando comando ao servidor');
     },
     async sendRaw(content) {
-      await writer.write(encoder.encode(content));
+      await withTimeout(writer.write(encoder.encode(content)), 'enviando corpo da mensagem');
     },
     async read(expectedCodes) {
       const allowed = Array.isArray(expectedCodes) ? expectedCodes : [expectedCodes];
@@ -62,7 +78,7 @@ function createChannel(socket) {
           return response;
         }
 
-        const { value, done } = await reader.read();
+        const { value, done } = await withTimeout(reader.read(), 'aguardando resposta do servidor');
         if (done) throw new Error(`Conexao SMTP encerrada: ${buffer}`);
         buffer += decoder.decode(value, { stream: true });
       }
@@ -98,12 +114,18 @@ export async function sendEmail(env, { to, subject, html }) {
   const from = requireEmail(env.SMTP_FROM || user);
   const recipient = requireEmail(to);
   const fromName = env.SMTP_FROM_NAME || 'Avantix Laboratorio';
+  const logContext = { event: 'smtp_send', host, port, from, to: recipient, subject };
 
-  let socket = connect({ hostname: host, port }, { secureTransport: 'starttls' });
-  await socket.opened;
-  let channel = createChannel(socket);
+  console.log({ ...logContext, stage: 'connecting' });
+
+  let socket;
+  let channel;
 
   try {
+    socket = connect({ hostname: host, port }, { secureTransport: 'starttls' });
+    await withTimeout(socket.opened, `conectando a ${host}:${port}`);
+    channel = createChannel(socket);
+
     await channel.read(220);
     await channel.send('EHLO avantixlabor.com.br');
     await channel.read(250);
@@ -112,7 +134,7 @@ export async function sendEmail(env, { to, subject, html }) {
 
     channel.release();
     socket = socket.startTls();
-    await socket.opened;
+    await withTimeout(socket.opened, 'iniciando STARTTLS');
     channel = createChannel(socket);
 
     await channel.send('EHLO avantixlabor.com.br');
@@ -135,8 +157,18 @@ export async function sendEmail(env, { to, subject, html }) {
     await channel.read(250);
     await channel.send('QUIT');
     await channel.read(221);
+    console.log({ ...logContext, stage: 'sent', success: true });
+    return { success: true, to: recipient };
+  } catch (error) {
+    console.error({
+      ...logContext,
+      stage: 'failed',
+      success: false,
+      error: String(error?.message || error),
+    });
+    throw error;
   } finally {
-    await socket.close().catch(() => {});
+    await socket?.close().catch(() => {});
   }
 }
 

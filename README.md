@@ -87,6 +87,15 @@ rode também:
 wrangler d1 execute avantix-db --remote --file=migrations/004_status_pendente.sql
 ```
 
+Para habilitar o armazenamento normalizado de múltiplos arquivos por pedido,
+rode também:
+
+```bash
+wrangler d1 execute avantix-db --remote --file=migrations/005_multi_arquivos_json.sql
+```
+
+O campo `arquivos_json` continua sendo mantido por compatibilidade.
+
 ---
 
 ## 3. Criar o Bucket R2
@@ -201,6 +210,36 @@ O sistema envia automaticamente:
 
 - aviso para `contato@avantixlabor.com.br` quando chega um novo pedido;
 - aviso para o email cadastrado pelo cliente quando o admin muda o status.
+
+Para acompanhar erros em tempo real, execute antes de criar um pedido ou mudar
+um status:
+
+```bash
+wrangler pages deployment tail --project-name=avantix
+```
+
+Os eventos de email aparecem como `smtp_send`, `new_order_email_failed` ou
+`status_email_failed`. Os logs também podem ser vistos em Workers & Pages →
+avantix → Logs.
+
+Para testar o SMTP isoladamente, faça login como admin no navegador e execute
+no Console do DevTools:
+
+```js
+fetch('/api/admin/email-test', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ to: 'contato@avantixlabor.com.br' })
+}).then(async response => console.log(
+  response.status,
+  response.headers.get('content-type'),
+  await response.text()
+))
+```
+
+Essa rota retorna o erro SMTP diretamente, sem precisar criar outro pedido.
+O teste possui timeout de 12 segundos para evitar que uma conexão SMTP sem
+resposta permaneça pendurada até a Cloudflare retornar `502`.
 
 As variáveis não sensíveis do SMTP ficam em `wrangler.toml`. Para usar outro
 remetente ou destinatário interno, altere `SMTP_USER`, `SMTP_FROM` e

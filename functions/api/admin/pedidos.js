@@ -95,7 +95,13 @@ export async function onRequestPatch(context) {
     const notification = statusChangedEmail(order, STATUS_OPTIONS[status]);
     context.waitUntil(
       sendEmail(env, { to: order.cliente_email, ...notification })
-        .catch((error) => console.error('Status email error:', error))
+        .catch((error) => console.error({
+          event: 'status_email_failed',
+          order_id: id,
+          status,
+          to: order.cliente_email,
+          error: String(error?.message || error),
+        }))
     );
   }
 
