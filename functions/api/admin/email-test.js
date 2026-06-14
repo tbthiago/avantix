@@ -10,9 +10,9 @@ export async function onRequestPost({ request, env }) {
     const to = String(data.to || env.NOTIFY_EMAIL || 'contato@avantixlabor.com.br').trim();
     const result = await sendEmail(env, {
       to,
-      subject: 'Teste SMTP - Avantix Laboratorio',
+      subject: 'Teste de email - Avantix Laboratorio',
       html: `
-        <h2>Teste de envio SMTP</h2>
+        <h2>Teste de envio de email</h2>
         <p>O envio automatico do sistema Avantix esta funcionando.</p>
         <p>Executado em ${new Date().toISOString()}.</p>
       `,

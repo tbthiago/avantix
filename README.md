@@ -181,9 +181,40 @@ os arquivos enviados em cada pedido pela rota protegida `/api/admin/arquivo`.
 
 ---
 
-## 7. Emails automáticos pela Umbler
+## 7. Emails automáticos
 
-O projeto envia pela caixa `contato@avantixlabor.com.br` usando:
+### Transporte recomendado: Resend
+
+O envio automático deve usar a API HTTPS do Resend. Isso evita os timeouts de
+conexão TCP entre Cloudflare Pages Functions e `smtp.umbler.com:587`. A caixa
+de entrada continua hospedada normalmente na Umbler e o remetente continua
+sendo `contato@avantixlabor.com.br`.
+
+1. Crie uma conta gratuita em `https://resend.com`.
+2. Adicione o domínio `avantixlabor.com.br` em Domains.
+3. Autorize a configuração DNS pela Cloudflare ou adicione os registros
+   indicados pelo Resend. Não habilite recebimento no Resend e não remova os MX
+   da Umbler.
+4. Depois que o domínio aparecer como `Verified`, crie uma API Key.
+5. Grave a chave como secret:
+
+```bash
+wrangler pages secret put RESEND_API_KEY --project-name=avantix
+```
+
+Depois faça novo deploy:
+
+```bash
+wrangler pages deploy public --project-name=avantix
+```
+
+O plano gratuito do Resend permite atualmente 3.000 emails por mês, com limite
+de 100 por dia.
+
+### SMTP da Umbler como fallback
+
+Se `RESEND_API_KEY` não estiver configurada, o projeto ainda tenta enviar pela
+caixa `contato@avantixlabor.com.br` usando:
 
 ```text
 Servidor SMTP: smtp.umbler.com
@@ -192,8 +223,8 @@ Segurança: STARTTLS
 Usuário: contato@avantixlabor.com.br
 ```
 
-A senha nunca deve ser gravada no código ou no `wrangler.toml`. Configure-a
-como secret do Pages:
+A senha nunca deve ser gravada no código ou no `wrangler.toml`. Para manter o
+fallback SMTP, configure-a como secret do Pages:
 
 ```bash
 wrangler pages secret put SMTP_PASSWORD --project-name=avantix
@@ -222,7 +253,7 @@ Os eventos de email aparecem como `smtp_send`, `new_order_email_failed` ou
 `status_email_failed`. Os logs também podem ser vistos em Workers & Pages →
 avantix → Logs.
 
-Para testar o SMTP isoladamente, faça login como admin no navegador e execute
+Para testar o envio isoladamente, faça login como admin no navegador e execute
 no Console do DevTools:
 
 ```js
@@ -237,9 +268,13 @@ fetch('/api/admin/email-test', {
 ))
 ```
 
-Essa rota retorna o erro SMTP diretamente, sem precisar criar outro pedido.
-O teste possui timeout de 12 segundos para evitar que uma conexão SMTP sem
+Essa rota retorna o erro do provedor diretamente, sem precisar criar outro
+pedido. O teste possui timeout de 12 segundos para evitar que uma conexão sem
 resposta permaneça pendurada até a Cloudflare retornar `502`.
+Falhas ao abrir a conexão com `smtp.umbler.com:587` recebem uma segunda
+tentativa automática. O destinatário pode continuar sendo
+`contato@avantixlabor.com.br`, pois esse tipo de erro ocorre antes do envio do
+remetente e destinatário ao servidor SMTP.
 
 As variáveis não sensíveis do SMTP ficam em `wrangler.toml`. Para usar outro
 remetente ou destinatário interno, altere `SMTP_USER`, `SMTP_FROM` e

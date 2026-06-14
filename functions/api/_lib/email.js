@@ -3,13 +3,15 @@ import { connect } from 'cloudflare:sockets';
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 const SMTP_TIMEOUT_MS = 12000;
+const SMTP_CONNECT_TIMEOUT_MS = 7000;
+const SMTP_CONNECT_ATTEMPTS = 2;
 
-async function withTimeout(promise, operation) {
+async function withTimeout(promise, operation, timeoutMs = SMTP_TIMEOUT_MS) {
   let timeoutId;
   const timeout = new Promise((_, reject) => {
     timeoutId = setTimeout(() => {
-      reject(new Error(`Timeout SMTP apos ${SMTP_TIMEOUT_MS / 1000}s: ${operation}`));
-    }, SMTP_TIMEOUT_MS);
+      reject(new Error(`Timeout apos ${timeoutMs / 1000}s: ${operation}`));
+    }, timeoutMs);
   });
 
   try {
@@ -105,25 +107,103 @@ function buildMessage({ from, fromName, to, subject, html }) {
   ].join('\r\n');
 }
 
+async function sendWithResend(env, { from, fromName, to, subject, html }) {
+  const response = await withTimeout(fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+      'Idempotency-Key': crypto.randomUUID(),
+    },
+    body: JSON.stringify({
+      from: `${fromName} <${from}>`,
+      to: [to],
+      subject,
+      html,
+    }),
+  }), 'enviando email pela API Resend');
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(`Resend ${response.status}: ${data.message || JSON.stringify(data)}`);
+  }
+
+  console.log({
+    event: 'email_send',
+    provider: 'resend',
+    stage: 'sent',
+    success: true,
+    to,
+    subject,
+    message_id: data.id,
+  });
+  return { success: true, provider: 'resend', to, id: data.id };
+}
+
 export async function sendEmail(env, { to, subject, html }) {
-  if (!env.SMTP_PASSWORD) throw new Error('Secret SMTP_PASSWORD nao configurado.');
+  const user = requireEmail(env.SMTP_USER || 'contato@avantixlabor.com.br');
+  const from = requireEmail(env.EMAIL_FROM || env.SMTP_FROM || user);
+  const recipient = requireEmail(to);
+  const fromName = env.EMAIL_FROM_NAME || env.SMTP_FROM_NAME || 'Avantix Laboratorio';
+
+  if (env.RESEND_API_KEY) {
+    try {
+      return await sendWithResend(env, { from, fromName, to: recipient, subject, html });
+    } catch (error) {
+      console.error({
+        event: 'email_send',
+        provider: 'resend',
+        stage: 'failed',
+        success: false,
+        to: recipient,
+        subject,
+        error: String(error?.message || error),
+      });
+      throw error;
+    }
+  }
+
+  if (!env.SMTP_PASSWORD) {
+    throw new Error('Configure RESEND_API_KEY ou SMTP_PASSWORD para enviar emails.');
+  }
 
   const host = env.SMTP_HOST || 'smtp.umbler.com';
   const port = Number(env.SMTP_PORT || 587);
-  const user = requireEmail(env.SMTP_USER || 'contato@avantixlabor.com.br');
-  const from = requireEmail(env.SMTP_FROM || user);
-  const recipient = requireEmail(to);
-  const fromName = env.SMTP_FROM_NAME || 'Avantix Laboratorio';
   const logContext = { event: 'smtp_send', host, port, from, to: recipient, subject };
-
-  console.log({ ...logContext, stage: 'connecting' });
 
   let socket;
   let channel;
 
   try {
-    socket = connect({ hostname: host, port }, { secureTransport: 'starttls' });
-    await withTimeout(socket.opened, `conectando a ${host}:${port}`);
+    let connectionError;
+    for (let attempt = 1; attempt <= SMTP_CONNECT_ATTEMPTS; attempt += 1) {
+      try {
+        console.log({ ...logContext, stage: 'connecting', attempt });
+        socket = connect({ hostname: host, port }, { secureTransport: 'starttls' });
+        await withTimeout(
+          socket.opened,
+          `conectando a ${host}:${port} (tentativa ${attempt})`,
+          SMTP_CONNECT_TIMEOUT_MS
+        );
+        connectionError = null;
+        break;
+      } catch (error) {
+        connectionError = error;
+        console.warn({
+          ...logContext,
+          stage: 'connection_retry',
+          attempt,
+          error: String(error?.message || error),
+        });
+        await socket?.close().catch(() => {});
+        socket = null;
+        if (attempt < SMTP_CONNECT_ATTEMPTS) {
+          await new Promise((resolve) => setTimeout(resolve, 750));
+        }
+      }
+    }
+    if (connectionError) throw connectionError;
+
     channel = createChannel(socket);
 
     await channel.read(220);
