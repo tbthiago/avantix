@@ -235,6 +235,20 @@ section { padding: 120px 0; }
   color: rgba(247,245,242,0.5);
 }
 
+.hero__stats .stat-card {
+  display: flex;
+  align-items: center;
+  min-height: 8rem;
+}
+
+.hero__stats .stat-label {
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  line-height: 1.45;
+  text-transform: none;
+  color: rgba(247,245,242,0.78);
+}
+
 /* ─── BUTTONS ────────────────────────────── */
 .btn {
   display: inline-flex; align-items: center; gap: 0.5rem;
